@@ -20,12 +20,6 @@ zstyle ':completion:*:warnings' format 'No matches for: %d'
 zstyle ':completion:*' group-name ''
 
 
-# binutils
-export PATH="/opt/homebrew/Cellar/binutils/2.37/bin:$PATH"
-export LDFLAGS="-L/opt/homebrew/Cellar/binutils/2.37/lib"
-export CPPFLAGS="-I/opt/homebrew/Cellar/binutils/2.37/include"
-
-
 # go
 export GOPATH="$(go env GOPATH)"
 export GOBIN="$(go env GOBIN)"
