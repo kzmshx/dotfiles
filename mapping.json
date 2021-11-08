@@ -1,0 +1,14 @@
+[
+  {
+    "from": ".gitignore_global",
+    "to": "${HOME}/.config/git/ignore"
+  },
+  {
+    "from": ".zshrc",
+    "to": "${HOME}/.zshrc"
+  },
+  {
+    "from": "clion",
+    "to": "/usr/local/bin/clion"
+  }
+]
