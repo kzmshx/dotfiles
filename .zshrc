@@ -6,7 +6,6 @@ export PROMPT="%n@%m %F{4}%~%F{sgr0} $ "
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 
-
 # zsh-completions
 FPATH="$(brew --prefix)/share/zsh-completions:$FPATH"
 FPATH="$HOME/.zsh-completions:$FPATH"
