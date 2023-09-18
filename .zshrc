@@ -1,12 +1,93 @@
+# ------------------------------
+# zsh
+# ------------------------------
 export LANG="en_GB.UTF-8"
 export PROMPT="%n@%m %F{4}%~%F{sgr0} $ "
 
-
-# homebrew
+# ------------------------------
+# Homebrew
+# ------------------------------
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
+# ------------------------------
+# OpenSSL
+# ------------------------------
+export LDFLAGS="-L/opt/homebrew/opt/openssl@1.1/lib"
+export CPPFLAGS="-L/opt/homebrew/opt/openssl@1.1/include"
 
+# ------------------------------
+# Node.js
+# ------------------------------
+export PATH="$HOME/.nodebrew/current/bin:$PATH"
+
+# ------------------------------
+# pnpm
+# ------------------------------
+export PNPM_HOME="/Users/kzmsh/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# ------------------------------
+# Bun
+# ------------------------------
+# bun completions
+[ -s "/Users/kzmsh/.bun/_bun" ] && source "/Users/kzmsh/.bun/_bun"
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# ------------------------------
+# Python
+# ------------------------------
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+
+eval "$(pyenv init --path)"
+
+# Created by `pipx` on 2023-05-29 12:59:49
+export PATH="$PATH:/Users/kzmsh/.local/bin"
+
+# ------------------------------
+# Ruby
+# ------------------------------
+eval "$(rbenv init - zsh)"
+
+# ------------------------------
+# Go
+# ------------------------------
+export GOPATH="$(go env GOPATH)"
+export GOBIN="$(go env GOBIN)"
+export GOPKG="$GOPATH/pkg"
+export GOSRC="$GOPATH/src"
+export PATH="$GOBIN:$PATH"
+
+# ------------------------------
+# Rust
+# ------------------------------
+export CARGO_HOME="$HOME/.cargo"
+export PATH="$CARGO_HOME/bin:$PATH"
+
+# ------------------------------
+# Terraform
+# ------------------------------
+# tfenv
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /opt/homebrew/Cellar/tfenv/3.0.0/versions/1.5.7/terraform terraform
+
+# ------------------------------
+# Google Cloud SDK
+# ------------------------------
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/kzmsh/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/kzmsh/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/kzmsh/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/kzmsh/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+
+# ------------------------------
 # zsh-completions
+# ------------------------------
 FPATH="$(brew --prefix)/share/zsh-completions:$FPATH"
 FPATH="$HOME/.zsh-completions:$FPATH"
 
@@ -17,31 +98,3 @@ zstyle ':completion:*' verbose yes
 zstyle ':completion:*' format '%B%d%b'
 zstyle ':completion:*:warnings' format 'No matches for: %d'
 zstyle ':completion:*' group-name ''
-
-
-# go
-export GOPATH="$(go env GOPATH)"
-export GOBIN="$(go env GOBIN)"
-export GOPKG="$GOPATH/pkg"
-export GOSRC="$GOPATH/src"
-export PATH="$GOBIN:$PATH"
-
-
-# nodejs
-export PATH="$HOME/.nodebrew/current/bin:$PATH"
-
-
-# python
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-
-eval "$(pyenv init --path)"
-
-
-# rust
-export CARGO_HOME="$HOME/.cargo"
-export PATH="$CARGO_HOME/bin:$PATH"
-
-
-# kzmsh/compete
-export PATH="$HOME/go/src/github.com/kzmsh/compete/bin:$PATH"
