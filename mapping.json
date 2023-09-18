@@ -6,9 +6,5 @@
   {
     "from": ".zshrc",
     "to": "${HOME}/.zshrc"
-  },
-  {
-    "from": "clion",
-    "to": "/usr/local/bin/clion"
   }
 ]
