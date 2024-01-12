@@ -16,18 +16,10 @@ export LDFLAGS="-L/opt/homebrew/opt/openssl@1.1/lib"
 export CPPFLAGS="-L/opt/homebrew/opt/openssl@1.1/include"
 
 # ------------------------------
-# Node.js
+# Node.js (Volta)
 # ------------------------------
-export PATH="$HOME/.nodebrew/current/bin:$PATH"
-
-# ------------------------------
-# pnpm
-# ------------------------------
-export PNPM_HOME="/Users/kzmsh/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
 
 # ------------------------------
 # Bun
@@ -68,6 +60,11 @@ export PATH="$GOBIN:$PATH"
 # ------------------------------
 export CARGO_HOME="$HOME/.cargo"
 export PATH="$CARGO_HOME/bin:$PATH"
+
+# ------------------------------
+# Haskell
+# ------------------------------
+[ -f "/Users/kzmsh/.ghcup/env" ] && source "/Users/kzmsh/.ghcup/env"
 
 # ------------------------------
 # Terraform
