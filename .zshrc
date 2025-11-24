@@ -1,11 +1,8 @@
-# ------------------------------
-# zsh
-# ------------------------------
 export LANG="en_GB.UTF-8"
 export PROMPT="%n@%m %F{4}%~%F{sgr0} $ "
 
 # ------------------------------
-# Homebrew
+# Homebrew: brew
 # ------------------------------
 if ! command -v brew &> /dev/null; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -14,7 +11,7 @@ fi
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # ------------------------------
-# OpenSSL
+# OpenSSL: openssl@1.1
 # ------------------------------
 if ! command -v openssl &> /dev/null; then
     brew install openssl@1.1
@@ -24,7 +21,7 @@ export LDFLAGS="-L/opt/homebrew/opt/openssl@1.1/lib"
 export CPPFLAGS="-L/opt/homebrew/opt/openssl@1.1/include"
 
 # ------------------------------
-# Node.js (volta)
+# Node.js: volta
 # ------------------------------
 if ! command -v volta &> /dev/null; then
     curl https://get.volta.sh | bash
@@ -44,7 +41,7 @@ alias volta-install-base='volta install node npm pnpm'
 alias volta-install-coding-agents='volta install @anthropic-ai/claude-code@latest @google/gemini-cli@latest @github/copilot@latest'
 
 # ------------------------------
-# Deno
+# Deno: deno
 # ------------------------------
 export PATH="$HOME/.deno/bin:$PATH"
 
@@ -53,7 +50,7 @@ if ! command -v deno &> /dev/null; then
 fi
 
 # ------------------------------
-# Bun
+# Bun: bun
 # ------------------------------
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 export BUN_INSTALL="$HOME/.bun"
@@ -64,14 +61,14 @@ if ! command -v bun &> /dev/null; then
 fi
 
 # ------------------------------
-# Python (uv)
+# Python: uv
 # ------------------------------
 if ! command -v uv &> /dev/null; then
     curl -LsSf https://astral.sh/uv/install.sh | sh
 fi
 
 # ------------------------------
-# Go
+# Go: go
 # ------------------------------
 if ! command -v go &> /dev/null; then
     brew install go
@@ -84,7 +81,7 @@ export GOSRC="$GOPATH/src"
 export PATH="$GOBIN:$PATH"
 
 # ------------------------------
-# Rust
+# Rust: cargo
 # ------------------------------
 if ! command -v cargo &> /dev/null; then
     curl https://sh.rustup.rs -sSf | sh
@@ -94,7 +91,7 @@ export CARGO_HOME="$HOME/.cargo"
 export PATH="$CARGO_HOME/bin:$PATH"
 
 # ------------------------------
-# Haskell
+# Haskell: ghcup
 # ------------------------------
 [ -f "$HOME/.ghcup/env" ] && source "$HOME/.ghcup/env"
 
@@ -103,7 +100,7 @@ if ! command -v ghcup &> /dev/null; then
 fi
 
 # ------------------------------
-# GitHub
+# GitHub CLI: gh
 # ------------------------------
 if ! command -v gh &> /dev/null; then
     brew install gh
@@ -114,6 +111,21 @@ if ! gh auth status &> /dev/null; then
 fi
 
 export GITHUB_TOKEN=$(gh auth token)
+
+# ------------------------------
+# Google Cloud SDK: gcloud
+# ------------------------------
+GCLOUD_DIR="$HOME/tools/google-cloud-sdk"
+if [ ! -d "$GCLOUD_DIR" ]; then
+	mkdir -p "$HOME/tools"
+	cd "$HOME/tools"
+	curl https://sdk.cloud.google.com | bash
+	cd -
+fi
+
+export PATH="$GCLOUD_DIR/bin:$PATH"
+[ -f "$GCLOUD_DIR/path.zsh.inc" ] && source "$GCLOUD_DIR/path.zsh.inc"
+[ -f "$GCLOUD_DIR/completion.zsh.inc" ] && source "$GCLOUD_DIR/completion.zsh.inc"
 
 # ------------------------------
 # zsh-completions
