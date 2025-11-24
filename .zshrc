@@ -128,6 +128,13 @@ export PATH="$GCLOUD_DIR/bin:$PATH"
 [ -f "$GCLOUD_DIR/completion.zsh.inc" ] && source "$GCLOUD_DIR/completion.zsh.inc"
 
 # ------------------------------
+# Terraform: tfenv
+# ------------------------------
+if ! command -v tfenv &> /dev/null; then
+	brew install tfenv
+fi
+
+# ------------------------------
 # zsh-completions
 # ------------------------------
 FPATH="$(brew --prefix)/share/zsh-completions:$FPATH"
