@@ -103,6 +103,19 @@ if ! command -v ghcup &> /dev/null; then
 fi
 
 # ------------------------------
+# GitHub
+# ------------------------------
+if ! command -v gh &> /dev/null; then
+    brew install gh
+fi
+
+if ! gh auth status &> /dev/null; then
+    gh auth login
+fi
+
+export GITHUB_TOKEN=$(gh auth token)
+
+# ------------------------------
 # zsh-completions
 # ------------------------------
 FPATH="$(brew --prefix)/share/zsh-completions:$FPATH"
