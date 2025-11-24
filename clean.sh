@@ -1,8 +1,8 @@
 #!/bin/zsh
+set -euo pipefail
 
-MAP=mapping.json
-
-for mapping in $(jq -rc '.[]' <$MAP); do
+MAPPING_FILE=mapping.json
+for mapping in $(jq -rc '.[]' <$MAPPING_FILE); do
 	TO=$(jq -r '.to' <<<$mapping)
 	sudo rm $TO
 done
