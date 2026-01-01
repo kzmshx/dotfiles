@@ -135,13 +135,20 @@ function setup_zsh_completions() {
     zstyle ':completion:*' group-name ''
 }
 
+function setup_aliases() {
+    alias cd-atoms='cd $HOME/go/src/github.com/kzmshx/atoms'
+}
+
 # ------------------------------
 # If SSH_CONNECTION is not empty, source the claude_token file and skip the rest of the script
 # ------------------------------
 if [[ -n "$SSH_CONNECTION" ]]; then
     echo "SSH_CONNECTION detected"
+
+    # Load the Claude token
     source ~/.claude_token
 
+    # Setup the environment
     setup_brew
     setup_openssl
     setup_volta
@@ -155,10 +162,12 @@ if [[ -n "$SSH_CONNECTION" ]]; then
     setup_gcloud
     setup_tfenv
     setup_zsh_completions
+    setup_aliases
 
     return
 fi
 
+# Setup the environment
 setup_brew
 setup_openssl
 setup_volta
@@ -173,3 +182,4 @@ setup_gh_auth
 setup_gcloud
 setup_tfenv
 setup_zsh_completions
+setup_aliases
