@@ -31,8 +31,8 @@ function setup_volta() {
     *) export PATH="$PNPM_HOME:$PATH" ;;
     esac
 
-    alias volta-install-base='volta install node npm pnpm'
-    alias volta-install-coding-agents='volta install @anthropic-ai/claude-code@latest @google/gemini-cli@latest @github/copilot@latest'
+    alias volta-update-base='volta install node npm pnpm'
+    alias volta-update-tools='volta install @anthropic-ai/claude-code@latest @google/gemini-cli@latest @github/copilot@latest'
 }
 
 function setup_deno() {
