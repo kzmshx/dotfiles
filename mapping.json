@@ -6,5 +6,9 @@
   {
     "from": ".zshrc",
     "to": "${HOME}/.zshrc"
+  },
+  {
+    "from": ".zshenv",
+    "to": "${HOME}/.zshenv"
   }
 ]

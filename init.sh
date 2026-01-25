@@ -1,9 +1,17 @@
 #!/bin/zsh
 set -euo pipefail
 
-MAPPING_FILE=mapping.json
-for mapping in $(jq -rc '.[]' <$MAPPING_FILE); do
-	FROM=$(eval echo "$(jq -r '.from' <<<$mapping)")
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+MAPPING_FILE="$SCRIPT_DIR/mapping.json"
+
+for mapping in $(jq -rc '.[]' <"$MAPPING_FILE"); do
+	FROM="$SCRIPT_DIR/$(jq -r '.from' <<<$mapping)"
 	TO=$(eval echo "$(jq -r '.to' <<<$mapping)")
-	sudo cp $FROM $TO
+
+	# Create parent directory if needed
+	mkdir -p "$(dirname "$TO")"
+
+	# Create symlink (overwrite if exists)
+	ln -sf "$FROM" "$TO"
+	echo "Linked: $FROM -> $TO"
 done
