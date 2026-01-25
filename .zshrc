@@ -21,9 +21,8 @@ function setup_volta() {
         curl https://get.volta.sh | bash
     fi
 
+    # VOLTA_HOME and PATH are set in .zshenv
     export VOLTA_FEATURE_PNPM=1
-    export VOLTA_HOME="$HOME/.volta"
-    export PATH="$VOLTA_HOME/bin:$PATH"
 
     export PNPM_HOME="$HOME/Library/pnpm"
     case ":$PATH:" in
@@ -76,8 +75,7 @@ function setup_cargo() {
         curl https://sh.rustup.rs -sSf | sh
     fi
 
-    export CARGO_HOME="$HOME/.cargo"
-    export PATH="$CARGO_HOME/bin:$PATH"
+    # CARGO_HOME and PATH are set in .zshenv via cargo env
 }
 
 function setup_ghcup() {
@@ -114,10 +112,6 @@ function setup_gcloud() {
     export PATH="$GCLOUD_DIR/bin:$PATH"
     [ -f "$GCLOUD_DIR/path.zsh.inc" ] && source "$GCLOUD_DIR/path.zsh.inc"
     [ -f "$GCLOUD_DIR/completion.zsh.inc" ] && source "$GCLOUD_DIR/completion.zsh.inc"
-}
-
-function setup_gemini_cli() {
-    source ~/.gemini_token
 }
 
 function setup_tfenv() {
@@ -164,7 +158,6 @@ if [[ -n "$SSH_CONNECTION" ]]; then
     setup_ghcup
     setup_gh
     setup_gcloud
-    setup_gemini_cli
     setup_tfenv
     setup_zsh_completions
     setup_aliases
@@ -185,7 +178,6 @@ setup_ghcup
 setup_gh
 setup_gh_auth
 setup_gcloud
-setup_gemini_cli
 setup_tfenv
 setup_zsh_completions
 setup_aliases
