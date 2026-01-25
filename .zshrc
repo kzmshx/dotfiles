@@ -116,6 +116,10 @@ function setup_gcloud() {
     [ -f "$GCLOUD_DIR/completion.zsh.inc" ] && source "$GCLOUD_DIR/completion.zsh.inc"
 }
 
+function setup_gemini_cli() {
+    source ~/.gemini_token
+}
+
 function setup_tfenv() {
     if ! command -v tfenv &>/dev/null; then
         brew install tfenv
@@ -160,6 +164,7 @@ if [[ -n "$SSH_CONNECTION" ]]; then
     setup_ghcup
     setup_gh
     setup_gcloud
+    setup_gemini_cli
     setup_tfenv
     setup_zsh_completions
     setup_aliases
@@ -180,6 +185,7 @@ setup_ghcup
 setup_gh
 setup_gh_auth
 setup_gcloud
+setup_gemini_cli
 setup_tfenv
 setup_zsh_completions
 setup_aliases
