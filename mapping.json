@@ -10,5 +10,9 @@
   {
     "from": ".zshenv",
     "to": "${HOME}/.zshenv"
+  },
+  {
+    "from": ".hammerspoon",
+    "to": "${HOME}/.hammerspoon"
   }
 ]
