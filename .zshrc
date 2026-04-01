@@ -181,3 +181,12 @@ setup_gcloud
 setup_tfenv
 setup_zsh_completions
 setup_aliases
+
+# moonbit
+export PATH="$HOME/.moon/bin:$PATH"
+
+# moonbit
+export PATH="$HOME/.moon/bin:$PATH"
+
+# bun completions
+[ -s "/Users/kzmshx/.bun/_bun" ] && source "/Users/kzmshx/.bun/_bun"
