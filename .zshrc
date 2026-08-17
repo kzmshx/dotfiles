@@ -31,7 +31,7 @@ function setup_volta() {
     esac
 
     alias volta-update-base='volta install node npm pnpm'
-    alias volta-update-tools='volta install @anthropic-ai/claude-code@latest @google/gemini-cli@latest @github/copilot@latest'
+    alias volta-update-tools='volta install @anthropic-ai/claude-code@latest @google/gemini-cli@latest'
 }
 
 function setup_deno() {
