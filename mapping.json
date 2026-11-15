@@ -12,8 +12,12 @@
     "to": "${HOME}/.zshenv"
   },
   {
-    "from": ".hammerspoon",
-    "to": "${HOME}/.hammerspoon"
+    "from": ".hammerspoon/init.lua",
+    "to": "${HOME}/.hammerspoon/init.lua"
+  },
+  {
+    "from": ".hammerspoon/Spoons/SpoonInstall.spoon",
+    "to": "${HOME}/.hammerspoon/Spoons/SpoonInstall.spoon"
   },
   {
     "from": "bin/u",
