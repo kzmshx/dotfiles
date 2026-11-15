@@ -1,18 +1,13 @@
 export LANG="en_GB.UTF-8"
 export PROMPT="%n@%m %F{4}%~%F{sgr0} $ "
 
+# PATH and settings only. Tools are installed by bootstrap.sh, not when a shell opens.
+
 function setup_brew() {
-    if ! command -v brew &>/dev/null; then
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    fi
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+    [[ -x /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 }
 
 function setup_volta() {
-    if ! command -v volta &>/dev/null; then
-        curl https://get.volta.sh | bash
-    fi
-
     # VOLTA_HOME and PATH are set in .zshenv
     export VOLTA_FEATURE_PNPM=1
 
@@ -28,33 +23,15 @@ function setup_volta() {
 
 function setup_deno() {
     export PATH="$HOME/.deno/bin:$PATH"
-
-    if ! command -v deno &>/dev/null; then
-        curl -fsSL https://deno.land/install.sh | sh
-    fi
 }
 
 function setup_bun() {
     # Completions are sourced in setup_zsh_completions: _bun runs its own compinit when loaded before it
     export BUN_INSTALL="$HOME/.bun"
     export PATH="$BUN_INSTALL/bin:$PATH"
-
-    if ! command -v bun &>/dev/null; then
-        curl -fsSL https://bun.sh/install | bash
-    fi
-}
-
-function setup_uv() {
-    if ! command -v uv &>/dev/null; then
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-    fi
 }
 
 function setup_go() {
-    if ! command -v go &>/dev/null; then
-        brew install go
-    fi
-
     # Fixed instead of `go env` (a fork per shell); keep in sync with `go env -w GOBIN=...`
     export GOPATH="$HOME/go"
     export GOBIN="$GOPATH/bin"
@@ -63,56 +40,28 @@ function setup_go() {
     export PATH="$GOBIN:$PATH"
 }
 
-function setup_cargo() {
-    if ! command -v cargo &>/dev/null; then
-        curl https://sh.rustup.rs -sSf | sh
-    fi
-
-    # CARGO_HOME and PATH are set in .zshenv via cargo env
-}
-
 function setup_ghcup() {
     [ -f "$HOME/.ghcup/env" ] && source "$HOME/.ghcup/env"
-
-    if ! command -v ghcup &>/dev/null; then
-        curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
-    fi
-}
-
-function setup_gh() {
-    if ! command -v gh &>/dev/null; then
-        brew install gh
-    fi
 }
 
 function setup_gh_auth() {
+    command -v gh &>/dev/null || return
     # `gh auth token` only reads the stored token (~40ms); `gh auth status` calls the API (~1s)
     local token
-    if ! token=$(gh auth token 2>/dev/null); then
-        gh auth login && token=$(gh auth token)
+    if token=$(gh auth token 2>/dev/null); then
+        export GITHUB_TOKEN=$token
+    else
+        echo "gh: not logged in (run: gh auth login)"
     fi
-
-    [[ -n $token ]] && export GITHUB_TOKEN=$token
 }
 
 function setup_gcloud() {
     GCLOUD_DIR="$HOME/tools/google-cloud-sdk"
-    if [ ! -d "$GCLOUD_DIR" ]; then
-        mkdir -p "$HOME/tools"
-        cd "$HOME/tools"
-        curl https://sdk.cloud.google.com | bash
-        cd -
-    fi
+    [ -d "$GCLOUD_DIR" ] || return
 
     export PATH="$GCLOUD_DIR/bin:$PATH"
     [ -f "$GCLOUD_DIR/path.zsh.inc" ] && source "$GCLOUD_DIR/path.zsh.inc"
     # Completions are sourced in setup_zsh_completions: completion.zsh.inc runs compinit itself when loaded before it
-}
-
-function setup_tfenv() {
-    if ! command -v tfenv &>/dev/null; then
-        brew install tfenv
-    fi
 }
 
 function setup_zsh_completions() {
@@ -168,13 +117,9 @@ if [[ -n "$SSH_CONNECTION" ]]; then
     setup_volta
     setup_deno
     setup_bun
-    setup_uv
     setup_go
-    setup_cargo
     setup_ghcup
-    setup_gh
     setup_gcloud
-    setup_tfenv
     setup_zsh_completions
     setup_aliases
 
@@ -186,14 +131,10 @@ setup_brew
 setup_volta
 setup_deno
 setup_bun
-setup_uv
 setup_go
-setup_cargo
 setup_ghcup
-setup_gh
 setup_gh_auth
 setup_gcloud
-setup_tfenv
 setup_zsh_completions
 setup_aliases
 remind-u
