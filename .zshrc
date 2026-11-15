@@ -13,7 +13,7 @@ function setup_openssl() {
         brew install openssl@1.1
     fi
     export LDFLAGS="-L/opt/homebrew/opt/openssl@1.1/lib"
-    export CPPFLAGS="-L/opt/homebrew/opt/openssl@1.1/include"
+    export CPPFLAGS="-I/opt/homebrew/opt/openssl@1.1/include"
 }
 
 function setup_volta() {
@@ -211,15 +211,11 @@ remind-u
 # moonbit
 export PATH="$HOME/.moon/bin:$PATH"
 
-# moonbit
-export PATH="$HOME/.moon/bin:$PATH"
-
-# bun completions
-[ -s "/Users/kzmshx/.bun/_bun" ] && source "/Users/kzmshx/.bun/_bun"
-
-
-# Added by Antigravity CLI installer
-export PATH="/Users/kzmsh/.local/bin:$PATH"
+# Move ~/.local/bin (also added in .zshenv) back to the front: the setup_* above prepend in front of it,
+# and its stack (stack upgrade) and python3.12 (uv) are newer than the ghcup / Homebrew ones.
+# Assigning the arrays also drops the duplicates (typeset -U in .zshenv).
+path=("$HOME/.local/bin" $path)
+fpath=($fpath)
 
 # eMudhra workaround (2026-10-21): /etc/ssl/cert.pem still trusts the compromised chain, so point /usr/bin/curl at Homebrew's CA bundle.
 # `u` reports whether it can be removed
