@@ -12,6 +12,6 @@ for mapping in $(jq -rc '.[]' <"$MAPPING_FILE"); do
 	mkdir -p "$(dirname "$TO")"
 
 	# Create symlink (overwrite if exists)
-	ln -sf "$FROM" "$TO"
+	ln -sfn "$FROM" "$TO"
 	echo "Linked: $FROM -> $TO"
 done
