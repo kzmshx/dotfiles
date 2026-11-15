@@ -43,7 +43,7 @@ function setup_deno() {
 }
 
 function setup_bun() {
-    [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+    # Completions are sourced in setup_zsh_completions: _bun runs its own compinit when loaded before it
     export BUN_INSTALL="$HOME/.bun"
     export PATH="$BUN_INSTALL/bin:$PATH"
 
@@ -63,8 +63,9 @@ function setup_go() {
         brew install go
     fi
 
-    export GOPATH="$(go env GOPATH)"
-    export GOBIN="$(go env GOBIN)"
+    # Fixed instead of `go env` (a fork per shell); keep in sync with `go env -w GOBIN=...`
+    export GOPATH="$HOME/go"
+    export GOBIN="$GOPATH/bin"
     export GOPKG="$GOPATH/pkg"
     export GOSRC="$GOPATH/src"
     export PATH="$GOBIN:$PATH"
@@ -93,11 +94,13 @@ function setup_gh() {
 }
 
 function setup_gh_auth() {
-    if ! gh auth status &>/dev/null; then
-        gh auth login
+    # `gh auth token` only reads the stored token (~40ms); `gh auth status` calls the API (~1s)
+    local token
+    if ! token=$(gh auth token 2>/dev/null); then
+        gh auth login && token=$(gh auth token)
     fi
 
-    export GITHUB_TOKEN=$(gh auth token)
+    [[ -n $token ]] && export GITHUB_TOKEN=$token
 }
 
 function setup_gcloud() {
@@ -111,7 +114,7 @@ function setup_gcloud() {
 
     export PATH="$GCLOUD_DIR/bin:$PATH"
     [ -f "$GCLOUD_DIR/path.zsh.inc" ] && source "$GCLOUD_DIR/path.zsh.inc"
-    [ -f "$GCLOUD_DIR/completion.zsh.inc" ] && source "$GCLOUD_DIR/completion.zsh.inc"
+    # Completions are sourced in setup_zsh_completions: completion.zsh.inc runs compinit itself when loaded before it
 }
 
 function setup_tfenv() {
@@ -121,11 +124,22 @@ function setup_tfenv() {
 }
 
 function setup_zsh_completions() {
-    export FPATH="$(brew --prefix)/share/zsh-completions:$FPATH"
+    export FPATH="$HOMEBREW_PREFIX/share/zsh-completions:$FPATH"
     export FPATH="$HOME/.zsh-completions:$FPATH"
 
+    # Rebuild the dump (fpath scan + security check) at most once a day; otherwise load it as is.
+    # Completions added in between show up on the next rebuild, or run `rm ~/.zcompdump` to force it.
     autoload -Uz compinit
-    compinit -u
+    local -a stale=(${ZDOTDIR:-$HOME}/.zcompdump(N.mh+24))
+    if (( ${#stale} )); then
+        compinit -u
+    else
+        compinit -C -u
+    fi
+
+    # Scripts that register with compdef / complete must come after compinit, which resets the registrations
+    [[ -s "$BUN_INSTALL/_bun" ]] && source "$BUN_INSTALL/_bun"
+    [[ -f "$GCLOUD_DIR/completion.zsh.inc" ]] && source "$GCLOUD_DIR/completion.zsh.inc"
 
     zstyle ':completion:*' verbose yes
     zstyle ':completion:*' format '%B%d%b'
