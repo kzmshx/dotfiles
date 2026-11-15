@@ -44,17 +44,6 @@ function setup_ghcup() {
     [ -f "$HOME/.ghcup/env" ] && source "$HOME/.ghcup/env"
 }
 
-function setup_gh_auth() {
-    command -v gh &>/dev/null || return
-    # `gh auth token` only reads the stored token (~40ms); `gh auth status` calls the API (~1s)
-    local token
-    if token=$(gh auth token 2>/dev/null); then
-        export GITHUB_TOKEN=$token
-    else
-        echo "gh: not logged in (run: gh auth login)"
-    fi
-}
-
 function setup_gcloud() {
     GCLOUD_DIR="$HOME/tools/google-cloud-sdk"
     [ -d "$GCLOUD_DIR" ] || return
@@ -133,7 +122,6 @@ setup_deno
 setup_bun
 setup_go
 setup_ghcup
-setup_gh_auth
 setup_gcloud
 setup_zsh_completions
 setup_aliases
