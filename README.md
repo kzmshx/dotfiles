@@ -24,7 +24,7 @@ Opening a shell never installs anything; `.zshrc` only sets PATH and settings.
 
 | Command | What it does |
 | :- | :- |
-| `u` | Update Homebrew, mise (Node LTS / pnpm / global npm packages in `mise/config.toml`), uv, Rust, Deno, Bun, gcloud; list macOS updates |
+| `u` | Update Homebrew, mise (Node LTS / pnpm / global npm packages in `mise/config.toml`), uv, Rust and the crates from `cargo install`, Deno, Bun, gcloud; list macOS updates |
 | `u clean` | Show cache sizes and delete the ones you confirm |
 | `u clean -n` | Show cache sizes only |
 | `u clean -y` | Delete every cache without asking |

@@ -1,7 +1,7 @@
 #!/bin/zsh
 # u: update software and free storage on macOS
 #
-#   u             update everything (Homebrew, mise, uv, Rust, Deno, Bun, gcloud, macOS list)
+#   u             update everything (Homebrew, mise, uv, Rust + cargo install packages, Deno, Bun, gcloud, macOS list)
 #   u clean       show cache sizes and delete the ones you confirm
 #   u clean -y    delete all caches without asking
 #   u clean -n    show cache sizes only
@@ -39,6 +39,14 @@ update_mise() {
     mise upgrade
 }
 
+# Reinstall the crates `cargo install` put in ~/.cargo/bin; cargo skips the ones already at the newest version.
+# Crates installed from a path or git (shown with "(...)" in the list) are left alone.
+update_cargo_bins() {
+    local crates=(${(f)"$(cargo install --list | awk '/^[^ ]/ && !/\(/ {sub(/:$/, ""); print $1}')"})
+    (( ${#crates} )) || return 0
+    cargo install --locked "${crates[@]}"
+}
+
 # eMudhra workaround (2026-10-21): once Apple drops the two roots from /etc/ssl/cert.pem,
 # CURL_CA_BUNDLE in .zshrc and git's http.sslCAInfo can be removed
 check_emudhra() {
@@ -66,6 +74,10 @@ cmd_update() {
     if has rustup; then
         header "Rust"
         step rustup rustup update
+    fi
+    if has cargo; then
+        header "cargo install packages"
+        step cargo update_cargo_bins
     fi
     if has deno; then
         header "Deno"
