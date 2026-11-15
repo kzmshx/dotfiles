@@ -11,15 +11,15 @@ header() { print -P "%F{4}==> $1%f" }
 # (before the dotfiles are linked, ~/.volta/bin and the like are not on PATH yet)
 missing() { ! command -v "$1" &>/dev/null && [[ ! -x $2 ]] }
 
-# Homebrew first: init.sh needs jq from it
+# Homebrew first: init.sh needs jq from the Brewfile
 if missing brew /opt/homebrew/bin/brew; then
     header "Homebrew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-header "Homebrew formulae"
-brew install jq gh go tfenv zsh-completions
+header "Brewfile"
+brew bundle --file="$SCRIPT_DIR/Brewfile"
 
 # ~/.zshrc is this repo's file, so installers are told not to edit shell startup files
 if missing volta "$HOME/.volta/bin/volta"; then

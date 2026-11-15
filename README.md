@@ -12,7 +12,7 @@ cd ~/go/src/github.com/kzmshx/dotfiles
 
 The clone uses HTTPS because a new Mac has no SSH key yet. Switch later with `git remote set-url origin git@github.com:kzmshx/dotfiles`.
 
-`bootstrap.sh` installs Homebrew, `jq` and the other tools `.zshrc` expects, logs in to GitHub CLI, then runs `init.sh`. Anything already installed is skipped.
+`bootstrap.sh` installs Homebrew and everything in `Brewfile`, then the tools that have their own installers, logs in to GitHub CLI, then runs `init.sh`. Anything already installed is skipped.
 
 `init.sh` symlinks every entry in `mapping.json`. A real file or directory already at a destination is moved aside to `<dest>.backup-<timestamp>` first. Pull to update; the links keep pointing at the repo. `clean.sh` removes the links that point into this repo.
 
