@@ -5,10 +5,12 @@ macOS configuration shared across machines.
 ## Setup on a new Mac
 
 ```sh
-git clone git@github.com:kzmsh/dotfiles ~/go/src/github.com/kzmshx/dotfiles
+git clone https://github.com/kzmshx/dotfiles ~/go/src/github.com/kzmshx/dotfiles
 cd ~/go/src/github.com/kzmshx/dotfiles
 ./bootstrap.sh
 ```
+
+The clone uses HTTPS because a new Mac has no SSH key yet. Switch later with `git remote set-url origin git@github.com:kzmshx/dotfiles`.
 
 `bootstrap.sh` installs Homebrew, `jq` and the other tools `.zshrc` expects, logs in to GitHub CLI, then runs `init.sh`. Anything already installed is skipped.
 
