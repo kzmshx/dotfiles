@@ -8,7 +8,7 @@ SCRIPT_DIR=${0:A:h}
 header() { print -P "%F{4}==> $1%f" }
 
 # True when the tool is neither on PATH nor at the path its installer uses
-# (before the dotfiles are linked, ~/.volta/bin and the like are not on PATH yet)
+# (before the dotfiles are linked, ~/.deno/bin and the like are not on PATH yet)
 missing() { ! command -v "$1" &>/dev/null && [[ ! -x $2 ]] }
 
 # Homebrew first: init.sh needs jq from the Brewfile
@@ -22,10 +22,6 @@ header "Brewfile"
 brew bundle --file="$SCRIPT_DIR/Brewfile"
 
 # ~/.zshrc is this repo's file, so installers are told not to edit shell startup files
-if missing volta "$HOME/.volta/bin/volta"; then
-    header "Volta"
-    curl -fsSL https://get.volta.sh | bash -s -- --skip-setup
-fi
 if missing deno "$HOME/.deno/bin/deno"; then
     header "Deno"
     curl -fsSL https://deno.land/install.sh | sh -s -- -y --no-modify-path
@@ -60,3 +56,7 @@ fi
 
 header "Links"
 "$SCRIPT_DIR/init.sh"
+
+# After the links: mise reads ~/.config/mise/config.toml
+header "mise: Node / pnpm / global npm packages"
+mise install

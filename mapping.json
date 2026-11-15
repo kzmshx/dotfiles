@@ -12,6 +12,10 @@
     "to": "${HOME}/.zshenv"
   },
   {
+    "from": "mise/config.toml",
+    "to": "${HOME}/.config/mise/config.toml"
+  },
+  {
     "from": ".hammerspoon/init.lua",
     "to": "${HOME}/.hammerspoon/init.lua"
   },

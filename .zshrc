@@ -7,18 +7,12 @@ function setup_brew() {
     [[ -x /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 }
 
-function setup_volta() {
-    # VOLTA_HOME and PATH are set in .zshenv
-    export VOLTA_FEATURE_PNPM=1
+function setup_mise() {
+    command -v mise &>/dev/null && eval "$(mise activate zsh)"
 
+    # Global bin for `pnpm add -g` (commitlint, textlint, ...)
     export PNPM_HOME="$HOME/Library/pnpm"
-    case ":$PATH:" in
-    *":$PNPM_HOME:"*) ;;
-    *) export PATH="$PNPM_HOME:$PATH" ;;
-    esac
-
-    # Stay on pnpm 11: Volta cannot launch pnpm 12 (no bin/pnpm.cjs)
-    alias volta-update-base='volta install node npm pnpm@11'
+    export PATH="$PNPM_HOME:$PATH"
 }
 
 function setup_deno() {
@@ -103,7 +97,7 @@ if [[ -n "$SSH_CONNECTION" ]]; then
 
     # Setup the environment
     setup_brew
-    setup_volta
+    setup_mise
     setup_deno
     setup_bun
     setup_go
@@ -117,7 +111,7 @@ fi
 
 # Setup the environment
 setup_brew
-setup_volta
+setup_mise
 setup_deno
 setup_bun
 setup_go
