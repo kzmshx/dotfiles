@@ -96,6 +96,16 @@ function remind-u() {
     fi
 }
 
+# The repo-patrol skill (claude-configs/_user) touches the stamp after a patrol; nothing shows until the first one
+function remind-repo-patrol() {
+    [[ -o interactive && -t 1 ]] || return
+    local stamp="$HOME/.cache/repo-patrol.last"
+    [[ -f "$stamp" ]] || return
+    if [[ -n $(find "$stamp" -mtime +7 2>/dev/null) ]]; then
+        echo "repo-patrol has not been run for 7+ days"
+    fi
+}
+
 # ------------------------------
 # If SSH_CONNECTION is not empty, source the claude_token file and skip the rest of the script
 # ------------------------------
@@ -130,6 +140,7 @@ setup_gcloud
 setup_zsh_completions
 setup_aliases
 remind-u
+remind-repo-patrol
 
 # moonbit
 export PATH="$HOME/.moon/bin:$PATH"
