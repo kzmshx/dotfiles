@@ -7,10 +7,6 @@ typeset -U path fpath
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
-# Volta: kept at the end of PATH only for mmdc (mermaid-cli) until it moves to mise (see mise/config.toml)
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$PATH:$VOLTA_HOME/bin"
-
 # Cargo
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 

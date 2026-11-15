@@ -28,6 +28,7 @@ Opening a shell never installs anything; `.zshrc` only sets PATH and settings.
 | `u clean` | Show cache sizes and delete the ones you confirm |
 | `u clean -n` | Show cache sizes only |
 | `u clean -y` | Delete every cache without asking |
+| `u browser` | Download the headless Chrome that `mmdc` (mermaid-cli) needs; `u` also does this after `mise upgrade` |
 
 Tools that are not installed are skipped. A failing step does not stop the rest; failures are listed at the end. The shell reminds you when `u` has not run for 30 days.
 

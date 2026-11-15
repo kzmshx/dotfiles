@@ -60,3 +60,4 @@ header "Links"
 # After the links: mise reads ~/.config/mise/config.toml
 header "mise: Node / pnpm / global npm packages"
 mise install
+"$SCRIPT_DIR/bin/u" browser

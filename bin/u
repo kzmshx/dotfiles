@@ -5,6 +5,7 @@
 #   u clean       show cache sizes and delete the ones you confirm
 #   u clean -y    delete all caches without asking
 #   u clean -n    show cache sizes only
+#   u browser     download the headless Chrome that mmdc (mermaid-cli) needs
 #
 # Tools that are not installed are skipped, so the same script works on every Mac.
 
@@ -36,7 +37,19 @@ report() {
 
 update_mise() {
     # Moves each tool in ~/.config/mise/config.toml to the newest version its spec allows (node = "lts", ...)
-    mise upgrade
+    mise upgrade || return
+    cmd_browser
+}
+
+# mise installs npm packages without running their install scripts, so puppeteer (under mermaid-cli)
+# never downloads its browser. Fetch the version that puppeteer expects; it is skipped when present.
+cmd_browser() {
+    has mise || return 0
+    local dir cli
+    dir=$(mise where npm:@mermaid-js/mermaid-cli 2>/dev/null) || return 0
+    cli=(${dir}/node_modules/.mise/puppeteer@*/node_modules/puppeteer/lib/puppeteer/node/cli.js(N))
+    (( ${#cli} )) || { echo "mmdc: puppeteer not found under $dir" >&2; return 1 }
+    mise exec node -- node "${cli[-1]}" browsers install chrome-headless-shell
 }
 
 # Reinstall the crates `cargo install` put in ~/.cargo/bin; cargo skips the ones already at the newest version.
@@ -147,7 +160,7 @@ clean_targets() {
     has go    && echo "Go build + module cache|$(go env GOCACHE) $(go env GOMODCACHE)|clean_go"
     [[ -d $HOME/.cargo/registry ]] && echo "Cargo registry|$HOME/.cargo/registry/cache $HOME/.cargo/registry/src $HOME/.cargo/git/checkouts|clean_cargo"
     has ghcup && echo "GHCup cache + tmp|$HOME/.ghcup/cache $HOME/.ghcup/tmp|clean_ghcup"
-    echo "Playwright / Puppeteer browsers|$HOME/Library/Caches/ms-playwright $HOME/Library/Caches/ms-playwright-mcp $HOME/.cache/puppeteer|clean_browser"
+    echo "Playwright / Puppeteer browsers (u browser restores mmdc's)|$HOME/Library/Caches/ms-playwright $HOME/Library/Caches/ms-playwright-mcp $HOME/.cache/puppeteer|clean_browser"
     echo "Xcode DerivedData + unavailable simulators|$HOME/Library/Developer/Xcode/DerivedData|clean_xcode"
     has docker && docker info &>/dev/null && echo "Docker (docker system prune)||clean_docker"
 }
@@ -190,6 +203,7 @@ cmd_clean() {
 case ${1:-update} in
     update) cmd_update ;;
     clean)  shift; cmd_clean "$@" ;;
-    -h|--help|help) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//' ;;
+    browser) cmd_browser ;;
+    -h|--help|help) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//' ;;
     *) echo "unknown command: $1 (try: u help)" >&2; exit 2 ;;
 esac

@@ -5,6 +5,7 @@
 node = "lts"
 pnpm = "latest"
 "npm:@github/copilot" = "latest"
-# mermaid-cli (mmdc) stays on Volta for now: mise refuses chromium-bidi@157.0.8090-0, which puppeteer-core
-# depends on, because it lacks the provenance earlier releases had. Add it back once that is resolved.
-# "npm:@mermaid-js/mermaid-cli" = "latest"
+# mermaid-cli (mmdc, used by the md-to-docx / md-to-confluence skills). mise's trust policy refuses
+# chromium-bidi@157.0.8090-0 (pulled in by puppeteer-core) because it has no provenance while earlier
+# releases did. Published by chrome-devtools-npm like the rest; excluded after review on 2026-11-15.
+"npm:@mermaid-js/mermaid-cli" = { version = "latest", trust_policy_excludes = ["chromium-bidi@157.0.8090-0"] }
