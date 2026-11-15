@@ -1,6 +1,16 @@
 export LANG="en_GB.UTF-8"
 export PROMPT="%n@%m %F{4}%~%F{sgr0} $ "
 
+# History: macOS defaults are HISTSIZE=2000 / SAVEHIST=1000 (/etc/zshrc)
+HISTFILE="${ZDOTDIR:-$HOME}/.zsh_history"
+HISTSIZE=100000
+SAVEHIST=100000
+setopt share_history       # write each command at once and read the other shells' commands
+setopt extended_history    # record start time and duration
+setopt hist_ignore_dups    # skip a command identical to the previous one
+setopt hist_ignore_space   # skip commands starting with a space (for one-off secrets)
+setopt hist_reduce_blanks
+
 # PATH and settings only. Tools are installed by bootstrap.sh, not when a shell opens.
 
 function setup_brew() {
