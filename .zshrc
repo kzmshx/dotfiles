@@ -8,14 +8,6 @@ function setup_brew() {
     eval "$(/opt/homebrew/bin/brew shellenv)"
 }
 
-function setup_openssl() {
-    if ! command -v openssl &>/dev/null; then
-        brew install openssl@1.1
-    fi
-    export LDFLAGS="-L/opt/homebrew/opt/openssl@1.1/lib"
-    export CPPFLAGS="-I/opt/homebrew/opt/openssl@1.1/include"
-}
-
 function setup_volta() {
     if ! command -v volta &>/dev/null; then
         curl https://get.volta.sh | bash
@@ -173,7 +165,6 @@ if [[ -n "$SSH_CONNECTION" ]]; then
 
     # Setup the environment
     setup_brew
-    setup_openssl
     setup_volta
     setup_deno
     setup_bun
@@ -192,7 +183,6 @@ fi
 
 # Setup the environment
 setup_brew
-setup_openssl
 setup_volta
 setup_deno
 setup_bun
