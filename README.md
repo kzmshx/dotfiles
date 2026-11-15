@@ -7,10 +7,14 @@ macOS configuration shared across machines.
 ```sh
 git clone git@github.com:kzmsh/dotfiles ~/go/src/github.com/kzmshx/dotfiles
 cd ~/go/src/github.com/kzmshx/dotfiles
-./init.sh
+./bootstrap.sh
 ```
 
-`init.sh` symlinks every entry in `mapping.json` (requires `jq`). Pull to update; the links keep pointing at the repo.
+`bootstrap.sh` installs Homebrew, `jq` and the other tools `.zshrc` expects, logs in to GitHub CLI, then runs `init.sh`. Anything already installed is skipped.
+
+`init.sh` symlinks every entry in `mapping.json`. A real file or directory already at a destination is moved aside to `<dest>.backup-<timestamp>` first. Pull to update; the links keep pointing at the repo. `clean.sh` removes the links that point into this repo.
+
+Opening a shell never installs anything; `.zshrc` only sets PATH and settings.
 
 ## u
 

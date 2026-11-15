@@ -1,17 +1,29 @@
 #!/bin/zsh
+# init.sh: symlink every entry in mapping.json. Safe to re-run.
+# A real file or directory already at the destination is moved aside to <dest>.backup-<timestamp> first.
 set -euo pipefail
 
-SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+SCRIPT_DIR=${0:A:h}
 MAPPING_FILE="$SCRIPT_DIR/mapping.json"
+STAMP=$(date +%Y%m%d%H%M%S)
 
-for mapping in $(jq -rc '.[]' <"$MAPPING_FILE"); do
-	FROM="$SCRIPT_DIR/$(jq -r '.from' <<<$mapping)"
-	TO=$(eval echo "$(jq -r '.to' <<<$mapping)")
+command -v jq &>/dev/null || { echo "init.sh needs jq (run bootstrap.sh, or: brew install jq)" >&2; exit 1 }
 
-	# Create parent directory if needed
-	mkdir -p "$(dirname "$TO")"
+jq -r '.[] | [.from, .to] | @tsv' "$MAPPING_FILE" | while IFS=$'\t' read -r from to; do
+    FROM="$SCRIPT_DIR/$from"
+    TO=${to/#\$\{HOME\}/$HOME}
 
-	# Create symlink (overwrite if exists)
-	ln -sfn "$FROM" "$TO"
-	echo "Linked: $FROM -> $TO"
+    if [[ -L $TO && $(readlink "$TO") == "$FROM" ]]; then
+        echo "Already linked: $TO"
+        continue
+    fi
+    if [[ -e $TO && ! -L $TO ]]; then
+        mv "$TO" "$TO.backup-$STAMP"
+        echo "Moved aside: $TO -> $TO.backup-$STAMP"
+    fi
+
+    mkdir -p "${TO:h}"
+    # -n: replace a link to a directory instead of creating a link inside it
+    ln -sfn "$FROM" "$TO"
+    echo "Linked: $TO -> $FROM"
 done
