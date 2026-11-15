@@ -138,56 +138,13 @@ function setup_aliases() {
 }
 
 # ------------------------------
-# Periodic updates: run `update-all` monthly, or when a vulnerability hits the news
+# Periodic updates: run `u` (bin/u) monthly, or when a vulnerability hits the news
 # ------------------------------
-UPDATE_ALL_STAMP="$HOME/.cache/update-all.last"
-
-function update-all() {
-    echo "==> Homebrew (ca-certificates, go, git, gh, rustup, tfenv, claude-code, ...)"
-    brew update && brew upgrade
-
-    echo "==> Volta: Node LTS / npm / pnpm"
-    volta-update-base
-    # Global packages stay pinned to the Node they were installed with; reinstall to repin to the new default
-    local pkgs=(${(f)"$(volta list all --format=plain | awk '$1 == "package" {print $2}' | sed 's/@[^@]*$//' | grep -vx pnpm)"})
-    (( ${#pkgs} )) && volta install "${pkgs[@]}"
-
-    echo "==> uv"
-    uv self update && uv tool upgrade --all
-
-    echo "==> Rust"
-    rustup update
-
-    echo "==> Deno / Bun"
-    deno upgrade
-    bun upgrade
-
-    echo "==> gcloud"
-    gcloud components update --quiet
-
-    echo "==> macOS (list only; apply from System Settings)"
-    softwareupdate --list
-
-    check-emudhra-workaround
-
-    mkdir -p "${UPDATE_ALL_STAMP:h}" && touch "$UPDATE_ALL_STAMP"
-}
-
-# eMudhra workaround (2026-10-21): once Apple drops the two roots from /etc/ssl/cert.pem,
-# CURL_CA_BUNDLE below and git's http.sslCAInfo can be removed
-function check-emudhra-workaround() {
-    if grep -q -e "AAA Certificate Services" -e "emSign ECC Root CA - G3" /etc/ssl/cert.pem; then
-        echo "==> eMudhra: /etc/ssl/cert.pem is not fixed yet; keep CURL_CA_BUNDLE and http.sslCAInfo"
-    else
-        echo "==> eMudhra: /etc/ssl/cert.pem is fixed. Remove CURL_CA_BUNDLE from .zshrc and run:"
-        echo "    git config --global --unset http.sslCAInfo"
-    fi
-}
-
-function remind-update-all() {
+function remind-u() {
     [[ -o interactive && -t 1 ]] || return
-    if [[ ! -f "$UPDATE_ALL_STAMP" || -n $(find "$UPDATE_ALL_STAMP" -mtime +30 2>/dev/null) ]]; then
-        echo "update-all has not been run for 30+ days"
+    local stamp="$HOME/.cache/u.last"
+    if [[ ! -f "$stamp" || -n $(find "$stamp" -mtime +30 2>/dev/null) ]]; then
+        echo "u has not been run for 30+ days"
     fi
 }
 
@@ -235,7 +192,7 @@ setup_gcloud
 setup_tfenv
 setup_zsh_completions
 setup_aliases
-remind-update-all
+remind-u
 
 # moonbit
 export PATH="$HOME/.moon/bin:$PATH"
@@ -251,5 +208,5 @@ export PATH="$HOME/.moon/bin:$PATH"
 export PATH="/Users/kzmsh/.local/bin:$PATH"
 
 # eMudhra workaround (2026-10-21): /etc/ssl/cert.pem still trusts the compromised chain, so point /usr/bin/curl at Homebrew's CA bundle.
-# Run check-emudhra-workaround to see whether it can be removed
+# `u` reports whether it can be removed
 export CURL_CA_BUNDLE=/opt/homebrew/etc/ca-certificates/cert.pem

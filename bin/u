@@ -1,0 +1,187 @@
+#!/bin/zsh
+# u: update software and free storage on macOS
+#
+#   u             update everything (Homebrew, Volta, uv, Rust, Deno, Bun, gcloud, macOS list)
+#   u clean       show cache sizes and delete the ones you confirm
+#   u clean -y    delete all caches without asking
+#   u clean -n    show cache sizes only
+#
+# Tools that are not installed are skipped, so the same script works on every Mac.
+
+setopt pipefail
+
+U_STAMP="$HOME/.cache/u.last"
+FAILED=()
+
+has() { command -v "$1" &>/dev/null }
+header() { print -P "%F{4}==> $1%f" }
+
+# Run a step and record its name if it fails, so later steps still run
+step() {
+    local name=$1; shift
+    "$@" || FAILED+=("$name")
+}
+
+report() {
+    if (( ${#FAILED} )); then
+        print -P "%F{1}Failed: ${(j:, :)FAILED}%f"
+        return 1
+    fi
+    print -P "%F{2}Done%f"
+}
+
+# ------------------------------
+# update
+# ------------------------------
+
+update_volta() {
+    # Stay on pnpm 11: Volta cannot launch pnpm 12 (no bin/pnpm.cjs)
+    volta install node npm pnpm@11 || return
+    # Global packages stay pinned to the Node they were installed with; reinstall to repin to the new default
+    local pkgs=(${(f)"$(volta list all --format=plain | awk '$1 == "package" {print $2}' | sed 's/@[^@]*$//' | grep -vx pnpm)"})
+    (( ${#pkgs} )) && volta install "${pkgs[@]}"
+    return 0
+}
+
+# eMudhra workaround (2026-10-21): once Apple drops the two roots from /etc/ssl/cert.pem,
+# CURL_CA_BUNDLE in .zshrc and git's http.sslCAInfo can be removed
+check_emudhra() {
+    if grep -q -e "AAA Certificate Services" -e "emSign ECC Root CA - G3" /etc/ssl/cert.pem; then
+        echo "eMudhra: /etc/ssl/cert.pem is not fixed yet; keep CURL_CA_BUNDLE and http.sslCAInfo"
+    else
+        echo "eMudhra: /etc/ssl/cert.pem is fixed. Remove CURL_CA_BUNDLE from .zshrc and run:"
+        echo "    git config --global --unset http.sslCAInfo"
+    fi
+}
+
+cmd_update() {
+    if has brew; then
+        header "Homebrew"
+        step brew eval 'brew update && brew upgrade'
+    fi
+    if has volta; then
+        header "Volta: Node LTS / npm / pnpm"
+        step volta update_volta
+    fi
+    if has uv; then
+        header "uv"
+        step uv eval 'uv self update && uv tool upgrade --all'
+    fi
+    if has rustup; then
+        header "Rust"
+        step rustup rustup update
+    fi
+    if has deno; then
+        header "Deno"
+        step deno deno upgrade
+    fi
+    if has bun; then
+        header "Bun"
+        step bun bun upgrade
+    fi
+    if has gcloud; then
+        header "gcloud"
+        step gcloud gcloud components update --quiet
+    fi
+
+    header "macOS (list only; apply from System Settings)"
+    softwareupdate --list
+
+    header "Checks"
+    check_emudhra
+
+    mkdir -p "${U_STAMP:h}" && touch "$U_STAMP"
+    report
+}
+
+# ------------------------------
+# clean
+# ------------------------------
+
+# Total size of the given paths in KiB (missing paths count as 0)
+size_kb() {
+    local p total=0
+    for p in "$@"; do
+        [[ -e $p ]] && (( total += $(du -sk "$p" 2>/dev/null | awk '{print $1}') ))
+    done
+    echo $total
+}
+
+human() {
+    local kb=$1
+    if (( kb >= 1048576 )); then printf "%.1fG" $(( kb / 1048576.0 ))
+    elif (( kb >= 1024 )); then printf "%.0fM" $(( kb / 1024.0 ))
+    else printf "%dK" $kb
+    fi
+}
+
+# Each target: name, the paths it frees (for the size), and the function that deletes it.
+# Deletion uses the tool's own command where one exists. Everything here is re-downloaded on demand.
+clean_brew()    { brew cleanup --prune=all }
+clean_uv()      { uv cache clean }
+clean_npm()     { npm cache clean --force && rm -rf "$HOME/.npm/_npx" }
+clean_pnpm()    { pnpm store prune }
+clean_bun()     { bun pm cache rm }
+clean_go()      { go clean -cache -modcache }
+clean_cargo()   { rm -rf "$HOME/.cargo/registry/cache" "$HOME/.cargo/registry/src" "$HOME/.cargo/git/checkouts" }
+clean_ghcup()   { ghcup gc --cache --tmpdirs --hls-no-ghc }
+clean_browser() { rm -rf "$HOME/Library/Caches/ms-playwright" "$HOME/Library/Caches/ms-playwright-mcp" "$HOME/.cache/puppeteer" }
+clean_xcode()   { rm -rf "$HOME/Library/Developer/Xcode/DerivedData"; has xcrun && xcrun simctl delete unavailable }
+clean_docker()  { docker system prune -f }
+
+clean_targets() {
+    # name|paths to measure (space separated; empty = size unknown)|delete function
+    has brew  && echo "Homebrew cache|$(brew --cache)|clean_brew"
+    has uv    && echo "uv cache|$(uv cache dir 2>/dev/null)|clean_uv"
+    has npm   && echo "npm cache + npx|$HOME/.npm/_cacache $HOME/.npm/_npx|clean_npm"
+    has pnpm  && echo "pnpm store (prunes unreferenced only)|$(pnpm store path 2>/dev/null)|clean_pnpm"
+    has bun   && echo "Bun cache|$HOME/.bun/install/cache|clean_bun"
+    has go    && echo "Go build + module cache|$(go env GOCACHE) $(go env GOMODCACHE)|clean_go"
+    [[ -d $HOME/.cargo/registry ]] && echo "Cargo registry|$HOME/.cargo/registry/cache $HOME/.cargo/registry/src $HOME/.cargo/git/checkouts|clean_cargo"
+    has ghcup && echo "GHCup cache + tmp|$HOME/.ghcup/cache $HOME/.ghcup/tmp|clean_ghcup"
+    echo "Playwright / Puppeteer browsers|$HOME/Library/Caches/ms-playwright $HOME/Library/Caches/ms-playwright-mcp $HOME/.cache/puppeteer|clean_browser"
+    echo "Xcode DerivedData + unavailable simulators|$HOME/Library/Developer/Xcode/DerivedData|clean_xcode"
+    has docker && docker info &>/dev/null && echo "Docker (docker system prune)||clean_docker"
+}
+
+cmd_clean() {
+    local mode=ask
+    case $1 in
+        -y|--yes) mode=yes ;;
+        -n|--dry-run) mode=dry ;;
+    esac
+
+    local before=$(df -k / | awk 'NR==2 {print $4}')
+    local line name paths fn kb answer
+    for line in ${(f)"$(clean_targets)"}; do
+        IFS='|' read -r name paths fn <<<"$line"
+        if [[ -n $paths ]]; then
+            kb=$(size_kb ${=paths})
+            (( kb == 0 )) && continue
+            printf "%-50s %8s" "$name" "$(human $kb)"
+        else
+            printf "%-50s %8s" "$name" "?"
+        fi
+        if [[ $mode != ask ]]; then
+            echo
+            [[ $mode == dry ]] && continue
+        else
+            read -q "answer? delete? [y/N] " </dev/tty
+            echo
+            [[ $answer == y ]] || continue
+        fi
+        step "$name" $fn
+    done
+
+    [[ $mode == dry ]] && return 0
+    local after=$(df -k / | awk 'NR==2 {print $4}')
+    header "Freed $(human $(( after > before ? after - before : 0 ))), free now $(human $after)"
+    report
+}
+
+case ${1:-update} in
+    update) cmd_update ;;
+    clean)  shift; cmd_clean "$@" ;;
+    -h|--help|help) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//' ;;
+    *) echo "unknown command: $1 (try: u help)" >&2; exit 2 ;;
+esac

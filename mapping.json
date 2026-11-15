@@ -14,5 +14,9 @@
   {
     "from": ".hammerspoon",
     "to": "${HOME}/.hammerspoon"
+  },
+  {
+    "from": "bin/u",
+    "to": "${HOME}/.local/bin/u"
   }
 ]
