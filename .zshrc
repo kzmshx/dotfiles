@@ -169,7 +169,7 @@ if [[ -n "$SSH_CONNECTION" ]]; then
     echo "SSH_CONNECTION detected"
 
     # Load the Claude token
-    source ~/.claude_token
+    [[ -f ~/.claude_token ]] && source ~/.claude_token
 
     # Setup the environment
     setup_brew
